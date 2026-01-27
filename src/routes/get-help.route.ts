@@ -1,5 +1,5 @@
 import { Router } from "express";
 
-const helpRoute = Router();
+const getHelpRoute = Router();
 
-export default helpRoute;
+export default getHelpRoute;
