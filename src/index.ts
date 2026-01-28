@@ -1,7 +1,9 @@
 import express, { type NextFunction, type Request, type Response, type ErrorRequestHandler } from 'express';
+import dotenv from 'dotenv';
 import { v4 as uuidv4 } from 'uuid';
 import { aslStore } from './api/logging/loggerContext.js';
-import dotenv from 'dotenv';
+import helmet from 'helmet';
+import pino from 'pino';
 import getHelpRoute from './routes/get-help.route.js';
 import createURIRoute from './routes/create-uri.route.js';
 import callURIRoute from './routes/call-uri.route.js';
@@ -16,6 +18,8 @@ app.use((req : Request, res : Response, next : NextFunction) => {
     next();
   })
 })
+app.use(helmet());
+
 
 const port = process.env.PORT || 3000;
 
