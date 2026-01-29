@@ -3,15 +3,19 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const pool = new Pool({
+const pg = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
-const connectWithRetry = async (retries: number = 5, delay: number = 2000): Promise<void> => {
+pg.on("error", (err) => {
+  console.error("[postgres.connection.ts] PostgreSQL Pool Error", err);
+});
+
+const pgConnectWithRetry = async (retries: number = 5, delay: number = 2000): Promise<void> => {
   for (let i = 0; i < retries; i++) {
     try {
         console.log('[postgres.connection.ts] Attempting to connect to PostgreSQL database...');
-        await pool.query('SELECT 1');
+        await pg.query('SELECT 1');//conn
         console.log('[postgres.connection.ts] Connected to PostgreSQL database successfully.');
         return;
     }
@@ -28,6 +32,4 @@ const connectWithRetry = async (retries: number = 5, delay: number = 2000): Prom
   }
 }
 
-connectWithRetry();
-
-export default pool;
+export { pg, pgConnectWithRetry }
