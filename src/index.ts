@@ -10,12 +10,17 @@ import pino from 'pino';
 import getHelpRoute from './routes/get-help.route.js';
 import createURIRoute from './routes/create-uri.route.js';
 import callURIRoute from './routes/call-uri.route.js';
+import loginRoute from './routes/login.route.js';
+import signUpRoute from './routes/sign-up.route.js';
 import { pgConnectWithRetry } from './api/connections/postgres.connection.js';
+import path from 'path';
 
 dotenv.config();
 
 const app = express();
 app.disable('x-powered-by');
+app.set('views', path.join(process.cwd(), 'src', 'views'));
+app.set('view engine', 'ejs');
 (async () => {
     try {
       await pgConnectWithRetry()
@@ -40,9 +45,11 @@ app.disable('x-powered-by');
 
       const port = process.env.PORT || 3000;
 
-      app.get('/', getHelpRoute);
-      app.post('/create', createURIRoute);
-      app.get('/:shortUri', callURIRoute);
+      app.use('/', getHelpRoute);
+      app.use('/sign-up', signUpRoute);
+      app.use('/login', loginRoute);
+      app.use('/create', createURIRoute);
+      app.use('/:shortUri', callURIRoute);
 
       app.use((req : Request, res : Response, next : NextFunction) => {//Not Found Handler
         res.status(404).json({ error: "Not found" });
