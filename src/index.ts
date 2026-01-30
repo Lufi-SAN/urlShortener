@@ -55,7 +55,8 @@ app.set('view engine', 'ejs');
 
       app.use('/v1', v1ApiRouter);
 
-      app.use((req : Request, res : Response, next : NextFunction) => {//Not Found Handler
+      //Not Found Handler
+      app.use((req : Request, res : Response, next : NextFunction) => {
         res.status(404).json({ error: "Not found" });
       })
 
@@ -64,6 +65,7 @@ app.set('view engine', 'ejs');
         res.status(500).json({ error: "Internal server error" });
       }
 
+      //Global Error Handler
       app.use(errorHandler);
 
       app.listen(port, () => {

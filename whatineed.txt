@@ -3,3 +3,32 @@ jwt
 passport
 express.json()
 signoz + pino
+
+Where is caching done? What are the triggers?
+Where is logging? Called everywhere a console.log would be or only controllers?
+
+Logging
+1. Global - app.use(middleware) in index.ts
+2. Then in service layer
+3. Then a Global Error Logger (in global error handler in index.ts)
+
+Controllers
+1. Get request, Send Response, next() OR next(error)
+2. Get data out of request (req.body, params, query, user(auth middleware))
+3. Call Service layer with request data (use JS data only)
+4. Catch errors from Service layer
+5. NEVER calls Store layer
+
+Service layer
+1. Get data from controller. Format data, run computational logic here
+2. Throw errors TO Controllers
+3. Call Store layer with schema(format) store desires
+4. Catch store errors here then throw to controllers
+5. Call to db here to pull stored data
+6. Send db data to controller + format data if required
+7. Place cache checks (before db call) & cache stores here (after receiving from db)
+
+Store layer
+1. Throw errors on queries
+2. Pull from db to service layer, Push to db when service layer orders so
+
