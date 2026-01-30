@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
-export const errorSchema = z.object({
-    type: z.string(),
+export const errorDataSchema = z.object({
+    type: z.string().default('#'),
     title: z.string().default('Internal Server Error'),
     status: z.number().default(500),
-    detail: z.string().optional(),
-    instance: z.string().optional(),
+    detail: z.string().default('An unexpected error occurred on the server.'),
+    instance: z.string(),
 });
 
-export type ErrorSchema = z.infer<typeof errorSchema>;
+export type ErrorDataSchema = z.infer<typeof errorDataSchema>;
