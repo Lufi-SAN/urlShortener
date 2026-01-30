@@ -1,13 +1,10 @@
 import { Router } from "express";
+import signUpController from "../controllers/sign-up.controllers.js";
 
 const signUpRoute = Router();
 
-signUpRoute.get('/', (req, res) => {
-    res.render('sign-up');
-})
+signUpRoute.get('/', signUpController.renderSignUpPage)
 
-signUpRoute.post('/', (req, res) => {
-    
-})
+signUpRoute.post('/', signUpController.validateSignUpData, signUpController.checkUserExists, signUpController.createUserAccount);
 
 export default signUpRoute;
