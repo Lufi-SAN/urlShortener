@@ -18,6 +18,7 @@ import path from 'path';
 dotenv.config();
 
 const app = express();
+const v1ApiRouter = express.Router();
 app.disable('x-powered-by');
 app.set('views', path.join(process.cwd(), 'src', 'views'));
 app.set('view engine', 'ejs');
@@ -42,14 +43,17 @@ app.set('view engine', 'ejs');
           })
         })
       )
+      app.use(express.json());
 
       const port = process.env.PORT || 3000;
 
-      app.use('/', getHelpRoute);
-      app.use('/sign-up', signUpRoute);
-      app.use('/login', loginRoute);
-      app.use('/create', createURIRoute);
-      app.use('/:shortUri', callURIRoute);
+      v1ApiRouter.use('/', getHelpRoute);
+      v1ApiRouter.use('/sign-up', signUpRoute);
+      v1ApiRouter.use('/login', loginRoute);
+      v1ApiRouter.use('/create', createURIRoute);
+      v1ApiRouter.use('/:shortUri', callURIRoute);
+
+      app.use('/v1', v1ApiRouter);
 
       app.use((req : Request, res : Response, next : NextFunction) => {//Not Found Handler
         res.status(404).json({ error: "Not found" });
