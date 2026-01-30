@@ -52,6 +52,7 @@ app.set('view engine', 'ejs');
       v1ApiRouter.use('/login', loginRoute);
       v1ApiRouter.use('/create', createURIRoute);
       v1ApiRouter.use('/:shortUri', callURIRoute);
+      //v1ApiRouter.use('/errors', errorHTMLRoute);
 
       app.use('/v1', v1ApiRouter);
 

@@ -1,6 +1,7 @@
 import { type NextFunction, type Request, type Response } from "express";
 import { userSignUpDataSchema, type UserSignUpData } from "../controllers/schemas/sign-up.controllers.schema.js";
-import { HttpError } from "../errors/custom-errors.errors.js";
+import { errorData, ErrorJSON } from "../errors/custom-errors.errors.js";
+import { errorTypesMapping, type ErrorTypesMappingProps } from "../errors/mappings/error-types-mapping.errors.js";
 
 const signUpController = {
     renderSignUpPage(req : Request, res: Response, next: NextFunction) {
@@ -12,14 +13,24 @@ const signUpController = {
         }
     },
     validateSignUpData(req : Request, res: Response, next: NextFunction) {
-        try {
-            const parseResult = userSignUpDataSchema.safeParse(req.body);
-            if (!parseResult.success) {
-               throw new HttpError()
+        const parseResult = userSignUpDataSchema.safeParse(req.body);
+        if (!parseResult.success) {
+            const errorD = errorData(...errorTypesMapping[422] as ErrorTypesMappingProps, 'Invalid username or password', req.path )
+            const links = {
+                retry: {
+                    href: '/v1/sign-up',
+                    rel: 'sign-up',
+                    method: 'GET'
+                },
+                help: {
+                    href: '/v1',
+                    rel: 'get-help',
+                    method: 'GET'
+                }
             }
-        } catch (error) {
-
+            return next(new ErrorJSON(undefined, errorD, links))
         }
+        next();
     }
 }
 
