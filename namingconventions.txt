@@ -1,0 +1,11 @@
+Service names
+1. services are grouped by routes
+2. service/route/[service names] should be same name of controller that calls them
+CONTROLLERS might or might not need a service so not every controller = service (Basically, more controllers than there are services)
+
+Controllers = Routes
+1. controller names should be same as their routes. Easy because its only one controller file exposing all possible controllers (Basically, controllers = routes)
+
+Name store files according to service calling them
+1. If a service needs a store - CREATE NEW STORE LOGIC
+store/[service-name]/[store-name]

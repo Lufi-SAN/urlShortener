@@ -2,6 +2,7 @@ import { type NextFunction, type Request, type Response } from "express";
 import { userSignUpDataSchema, type UserSignUpData } from "../controllers/schemas/sign-up.controllers.schema.js";
 import { errorData, ErrorJSON } from "../errors/custom-errors.errors.js";
 import { errorTypesMapping, type ErrorTypesMappingProps } from "../errors/mappings/error-types-mapping.errors.js";
+import { checkUserExists } from "../api/service/sign-up-route/check-user-exists.service.js";
 
 const signUpController = {
     renderSignUpPage(req : Request, res: Response, next: NextFunction) {
@@ -31,6 +32,13 @@ const signUpController = {
             return next(new ErrorJSON(undefined, errorD, links))
         }
         next();
+    },
+    checkUserExists(req : Request, res: Response, next: NextFunction) {
+        const username = (req.body as UserSignUpData).username;
+        checkUserExists(username);
+    },
+    createUserAccount() {
+        
     }
 }
 
