@@ -29,6 +29,17 @@ Service layer
 7. Place cache checks (before db call) & cache stores here (after receiving from db)
 
 Store layer
-1. Throw errors on queries
+1. DO NOT throw errors on queries - so no try...catch, service layer will catch in its own try...catch, interpret and 
 2. Pull from db to service layer, Push to db when service layer orders so
+
+// Example Output
+{
+  command: 'SELECT',
+  rowCount: 2,
+  rows: [
+    { id: 1, name: 'Alice', active: true },
+    { id: 2, name: 'Bob', active: false }
+  ],
+  fields: [ ... ] // Metadata about columns
+}
 
