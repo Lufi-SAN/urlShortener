@@ -14,6 +14,9 @@ import loginRoute from './routes/login.route.js';
 import signUpRoute from './routes/sign-up.route.js';
 import { pgConnectWithRetry } from './api/connections/postgres.connection.js';
 import path from 'path';
+import { errorData, ErrorJSON } from "./errors/custom-errors.errors.js";
+import { errorTypesMapping, type ErrorTypesMappingProps } from "./errors/mappings/error-types-mapping.errors.js";
+import { isDomainError } from './domain/user/user.errors.js';
 
 dotenv.config();
 
@@ -47,6 +50,7 @@ app.set('view engine', 'ejs');
 
       const port = process.env.PORT || 3000;
 
+      //API ROUTES
       v1ApiRouter.use('/', getHelpRoute);
       v1ApiRouter.use('/sign-up', signUpRoute);
       v1ApiRouter.use('/login', loginRoute);
@@ -56,14 +60,30 @@ app.set('view engine', 'ejs');
 
       app.use('/v1', v1ApiRouter);
 
-      //Not Found Handler
+      //NOT FOUND HANDLER
       app.use((req : Request, res : Response, next : NextFunction) => {
         res.status(404).json({ error: "Not found" });
       })
 
+      //GLOBAL ERROR HANDLER
       const errorHandler : ErrorRequestHandler = (err : Error, req : Request, res : Response, next : NextFunction) => {
         console.error(err);
-        res.status(500).json({ error: "Internal server error" });
+        
+        let code = 500
+        const path = req.protocol + '://' + req.get('host') + req.originalUrl;
+        const requestId = aslStore.getStore()?.get('requestId') || 'unknown';
+        let errorD;
+        if (isDomainError(err)) {
+          code = err.code
+          const message = err.message
+          errorD = errorData(...errorTypesMapping[code] as ErrorTypesMappingProps, message, path )
+        } else {
+          errorD = errorData(...errorTypesMapping[500] as ErrorTypesMappingProps, 'An unexpected error occurred on the server.', path )
+        }
+        
+        const errorJSON = new ErrorJSON(undefined, requestId, errorD, res.locals.links || {});
+
+        res.status(code).json(errorJSON.toJSON());
       }
 
       //Global Error Handler
