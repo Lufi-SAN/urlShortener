@@ -17,6 +17,7 @@ import path from 'path';
 import { errorData, ErrorJSON } from "./errors/custom-errors.errors.js";
 import { errorTypesMapping, type ErrorTypesMappingProps } from "./errors/mappings/error-types-mapping.errors.js";
 import { isDomainError } from './domain/user/user.errors.js';
+import { buildLinks } from './utils/hateoas.js';
 
 dotenv.config();
 
@@ -50,6 +51,11 @@ app.set('view engine', 'ejs');
 
       const port = process.env.PORT || 3000;
 
+      app.use((req, res, next) => {
+        res.locals.defaultLinks = buildLinks(req, [{ rel: 'get-help', path: '/v1', method: 'GET' }]);
+        next();
+      });
+
       //API ROUTES
       v1ApiRouter.use('/', getHelpRoute);
       v1ApiRouter.use('/sign-up', signUpRoute);
@@ -81,7 +87,7 @@ app.set('view engine', 'ejs');
           errorD = errorData(...errorTypesMapping[500] as ErrorTypesMappingProps, 'An unexpected error occurred on the server.', path )
         }
         
-        const errorJSON = new ErrorJSON(undefined, requestId, errorD, res.locals.links || {});
+        const errorJSON = new ErrorJSON(undefined, requestId, errorD, res.locals.links || res.locals.defaultLinks || {});
 
         res.status(code).json(errorJSON.toJSON());
       }

@@ -1,41 +1,43 @@
 import { type NextFunction, type Request, type Response } from "express";
 import { userSignUpDataSchema, type UserSignUpData } from "../controllers/schemas/sign-up.controllers.schema.js";
-import { errorData, ErrorJSON } from "../errors/custom-errors.errors.js";
-import { errorTypesMapping, type ErrorTypesMappingProps } from "../errors/mappings/error-types-mapping.errors.js";
-import { checkUserExists } from "../api/service/sign-up-route/check-user-exists.service.js";
+import { checkUserExistsService } from "../api/service/sign-up-route/check-user-exists.service.js";
+import { BadRequestError, InvalidSignUpCredentials, isDomainError, UserAlreadyExists } from "../domain/user/user.errors.js";
+import { buildLinks } from "../utils/hateoas.js";
 
 const signUpController = {
     renderSignUpPage(req : Request, res: Response, next: NextFunction) {
-        try {
-            res.status(200).render('sign-up');
-        } catch (error) {
-            console.error("Error rendering sign-up page:", error);
-            next(error)
-        }
+        res.status(200).render('sign-up');
     },
     validateSignUpData(req : Request, res: Response, next: NextFunction) {
         const parseResult = userSignUpDataSchema.safeParse(req.body);
         if (!parseResult.success) {
-            const errorD = errorData(...errorTypesMapping[422] as ErrorTypesMappingProps, 'Invalid username or password', req.path )
-            const links = {
-                retry: {
-                    href: '/v1/sign-up',
-                    rel: 'sign-up',
-                    method: 'GET'
-                },
-                help: {
-                    href: '/v1',
-                    rel: 'get-help',
-                    method: 'GET'
-                }
+            
+            const isStructural = parseResult.error.issues.some(issue =>
+                issue.code === 'invalid_type' ||
+                issue.code === 'invalid_union' ||
+                issue.code === 'unrecognized_keys'
+            );
+            if(isStructural) {
+                return next(new BadRequestError('Malformed sign-up data'));
+            } else {
+                return next(new InvalidSignUpCredentials('Invalid username or password'))
             }
-            return next(new ErrorJSON(undefined, errorD, links))
         }
         next();
     },
-    checkUserExists(req : Request, res: Response, next: NextFunction) {
+    async checkUserExists(req : Request, res: Response, next: NextFunction) {
         const username = (req.body as UserSignUpData).username;
-        checkUserExists(username);
+        try {
+            const doesUserExist = await checkUserExistsService(username);
+            if (doesUserExist) {
+                throw new UserAlreadyExists('User with this username already exists');
+            }
+        } catch(err) {//dynamism here too; check type of error first
+            if (isDomainError(err as Error)) {
+                res.locals.links = buildLinks(req, [{ rel: 'create-uri', path: '/v1/create', method: 'GET' }, { rel: 'get-help', path: '/v1', method: 'GET' }]);
+            } 
+            next(err)
+        }
     },
     createUserAccount() {
         

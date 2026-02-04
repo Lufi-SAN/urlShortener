@@ -14,6 +14,16 @@ export function isDomainError(obj: Record<string, any>): obj is DomainError {
   );
 }
 
+export class BadRequestError extends Error implements DomainError {
+    public code : number;
+    constructor(message : string) {
+        super(message),
+        this.code = 400,
+        this.name = 'BadRequestError';
+        Object.setPrototypeOf(this, new.target.prototype);
+    }
+}
+
 export class InvalidSignUpCredentials extends Error implements DomainError {
     public code : number;
     constructor(message : string) {
