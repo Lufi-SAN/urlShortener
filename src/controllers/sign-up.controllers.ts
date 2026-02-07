@@ -3,6 +3,9 @@ import { userSignUpDataSchema, type UserSignUpData } from "../controllers/schema
 import { checkUserExistsService } from "../api/service/sign-up-route/check-user-exists.service.js";
 import { BadRequestError, InvalidSignUpCredentials, isDomainError, UserAlreadyExists } from "../domain/user/user.errors.js";
 import { buildLinks } from "../utils/hateoas.js";
+import { createNewUserService } from "../api/service/sign-up-route/create-new-user.service.js";
+import { SuccessJSON } from "../utils/successJSON.js";
+import { buildMeta } from "../utils/metaBuilder.js";
 
 const signUpController = {
     renderSignUpPage(req : Request, res: Response, next: NextFunction) {
@@ -32,6 +35,7 @@ const signUpController = {
             if (doesUserExist) {
                 throw new UserAlreadyExists('User with this username already exists');
             }
+            next()
         } catch(err) {//dynamism here too; check type of error first
             if (isDomainError(err as Error)) {
                 res.locals.links = buildLinks(req, [{ rel: 'create-uri', path: '/v1/create', method: 'GET' }, { rel: 'get-help', path: '/v1', method: 'GET' }]);
@@ -39,8 +43,23 @@ const signUpController = {
             next(err)
         }
     },
-    createUserAccount() {
-        
+    async createUserAccount(req : Request, res: Response, next: NextFunction) {
+        const username = (req.body as UserSignUpData).username;
+        const password = (req.body as UserSignUpData).password;
+        try {
+            const user = await createNewUserService(username, password);
+            if (user) { 
+                const data = {
+                    username: user.username,
+                    created_at: user.created_at
+                }
+                const links = buildLinks(req, [{ rel: 'create-uri', path: '/v1/create', method: 'GET' }, { rel: 'get-help', path: '/v1', method: 'GET' }]);
+                const meta = buildMeta(req);
+                res.status(201).json(new SuccessJSON('success', 'User account created successfully', data, links, meta));
+            }
+        } catch(err) {
+            next(err);
+        }
     }
 }
 
