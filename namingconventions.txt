@@ -1,6 +1,6 @@
 Service names
 1. services are grouped by routes
-2. service/route/[service names] should be same name of controller that calls them
+2. service/[route_its_under]/[service names] should be same name of controller that calls them
 CONTROLLERS might or might not need a service so not every controller = service (Basically, more controllers than there are services)
 
 Controllers = Routes
@@ -9,3 +9,10 @@ Controllers = Routes
 Name store files according to service calling them
 1. If a service needs a store - CREATE NEW STORE LOGIC
 store/[service-name]/[store-name]
+
+PG Errors
+The <table>_<column> Shape
+Unique Constraints: Often named tablename_columnname_key.
+Primary Keys: Often named tablename_pkey.
+Foreign Keys: Often named tablename_columnname_fkey.
+Check Constraints: Often named tablename_columnname_check or tablename_check

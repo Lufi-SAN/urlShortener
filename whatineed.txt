@@ -43,3 +43,21 @@ Store layer
   fields: [ ... ] // Metadata about columns
 }
 
+SAD PATHS
+Sad paths come from 4 sources
+| Source         | Example                |
+| -------------- | ---------------------- |
+| Input          | Invalid email          |
+| Domain         | Business rule violated |
+| State          | Wrong lifecycle        |
+| Infrastructure | DB / Redis / API down  |
+Only the last one is “other parties”
+
+Why this matters architecturally
+Because it tells you where to handle errors:
+| Layer          | Handles                 |
+| -------------- | ----------------------- |
+| Controller     | Input errors            |
+| Service        | Business + state errors |
+| Store          | Infrastructure errors   |
+| Global handler | Everything else         |
