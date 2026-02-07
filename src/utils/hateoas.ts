@@ -1,6 +1,7 @@
 import { type Request } from "express";
 
 export function buildLinks(req: Request, linksConfig: { rel: string; path: string; method: string }[]) {
+    const selfUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
     const baseUrl = `${req.protocol}://${req.get('host')}`;
     return linksConfig.reduce((acc, link) => {
         acc[link.rel] = {
@@ -9,7 +10,7 @@ export function buildLinks(req: Request, linksConfig: { rel: string; path: strin
             method: link.method
         };
         return acc;
-    }, {} as Record<string, { href: string; rel: string; method: string }>);
+    }, { self : { href: selfUrl, rel: 'self', method: req.method.toUpperCase() } } as Record<string, { href: string; rel: string; method: string }>);
 }
 
  
