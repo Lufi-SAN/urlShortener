@@ -6,6 +6,6 @@ export function buildMeta(req: Request) {
         request_id: aslStore.getStore()?.get('requestId') || 'unknown',
         timestamp: new Date().toISOString(),
         rate_limit: req.rateLimit ? req.rateLimit : {},
-        api_version: req.path.split('/')[1] || 'unknown'
+        api_version: req.baseUrl.split('/')[1] || 'unknown'
     };
 }

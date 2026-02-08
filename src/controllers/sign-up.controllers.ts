@@ -12,7 +12,7 @@ const signUpController = {
         res.status(200).render('index', { 
             title: 'Sign Up',
             page: 'pages/sign-up',
-            script: 'sign-up.js' 
+            script: '/ejs-scripts/sign-up.js' 
         });
     },
     validateSignUpData(req : Request, res: Response, next: NextFunction) {
@@ -57,10 +57,8 @@ const signUpController = {
                     username: user.username,
                     created_at: user.created_at
                 }
-                const links = buildLinks(req, [{ rel: 'create-uri', path: '/v1/create', method: 'GET' }, { rel: 'get-help', path: '/v1', method: 'GET' }]);
-                console.log(req.baseUrl)
+                const links = buildLinks(req, [{ rel: 'log-in', path: '/v1/log-in', method: 'GET' }, { rel: 'get-help', path: '/v1', method: 'GET' }]);
                 const meta = buildMeta(req);
-                //Log-in 
                 res.status(201).json(new SuccessJSON('success', 'User account created successfully', data, links, meta));
             }
         } catch(err) {

@@ -10,7 +10,7 @@ import pino from 'pino';
 import getHelpRoute from './routes/get-help.route.js';
 import createURIRoute from './routes/create-uri.route.js';
 import callURIRoute from './routes/call-uri.route.js';
-import loginRoute from './routes/login.route.js';
+import logInRoute from './routes/login.route.js';
 import signUpRoute from './routes/sign-up.route.js';
 import { pgConnectWithRetry } from './api/connections/postgres.connection.js';
 import path from 'path';
@@ -47,8 +47,9 @@ app.set('view engine', 'ejs');
           })
         })
       )
+      app.use(express.static(path.join(process.cwd(), 'src', 'public')));
       app.use(express.json());
-      app.use(express.static('public'));
+      
 
       const port = process.env.PORT || 3000;
 
@@ -60,7 +61,7 @@ app.set('view engine', 'ejs');
       //API ROUTES
       v1ApiRouter.use('/', getHelpRoute);
       v1ApiRouter.use('/sign-up', signUpRoute);
-      v1ApiRouter.use('/login', loginRoute);
+      v1ApiRouter.use('/log-in', logInRoute);
       v1ApiRouter.use('/create', createURIRoute);
       v1ApiRouter.use('/:shortUri', callURIRoute);
       //v1ApiRouter.use('/errors', errorHTMLRoute);
