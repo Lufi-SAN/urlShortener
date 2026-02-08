@@ -54,6 +54,7 @@ const signUpController = {
                     created_at: user.created_at
                 }
                 const links = buildLinks(req, [{ rel: 'create-uri', path: '/v1/create', method: 'GET' }, { rel: 'get-help', path: '/v1', method: 'GET' }]);
+                console.log(req.baseUrl)
                 const meta = buildMeta(req);
                 res.status(201).json(new SuccessJSON('success', 'User account created successfully', data, links, meta));
             }

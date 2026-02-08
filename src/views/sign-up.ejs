@@ -10,25 +10,5 @@
             <input type="submit" value="Sign Up">
         </form>
     </body>
-    <script>
-        document.getElementById('signupForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            const response = await fetch('/sign-up', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username, password })
-            });
-
-            if (response.ok) {
-                alert('Signup successful!');
-            } else {
-                alert('Signup failed.');
-            }
-        });
-    </script>
+    <script src="/ejs-scripts/sign-up.js"></script>
 </html>
