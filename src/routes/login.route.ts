@@ -1,11 +1,10 @@
 import { Router } from "express";
+import logInController from "../controllers/log-in.controllers.js";
 
-const loginRoute = Router();
+const logInRoute = Router();
 
-loginRoute.post('/login', (req, res) => {
+logInRoute.get('/', logInController.renderLogInPage)
 
-    // Authentication logic goes here
-    res.status(200).json({ message: "Login successful" });
-})
+// logInRoute.post('/login', logInController.validateLogInData, logInController.checkUserExists, logInController.authenticateUser);
 
-export default loginRoute;
+export default logInRoute;
