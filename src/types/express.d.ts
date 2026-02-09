@@ -2,6 +2,10 @@ import "express";
 
 declare module "express-serve-static-core" {
   interface Request {
+    userData?: {
+      id: number;
+      token_version: number;
+    },
     rateLimit?: {
       limit: number;
       used: number;
