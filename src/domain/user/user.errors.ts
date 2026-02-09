@@ -43,3 +43,13 @@ export class UserAlreadyExists extends Error implements DomainError {
         Object.setPrototypeOf(this, new.target.prototype);
     }
 }
+
+export class InvalidLoginCredentials extends Error implements DomainError {
+  public code: number;
+  constructor(message : string) {
+    super(message);
+    this.code = 401;
+    this.name = 'InvalidLoginCredentials';
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
+}
