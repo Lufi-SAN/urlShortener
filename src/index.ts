@@ -8,7 +8,7 @@ import RedisStore from 'rate-limit-redis';
 import { redisClient, redisConnectWithRetry } from './api/connections/redis.connection.js';
 import pino from 'pino';
 import getHelpRoute from './routes/get-help.route.js';
-import createURIRoute from './routes/create-uri.route.js';
+import shortURISRoute from './routes/short-uris.route.js';
 import callURIRoute from './routes/call-uri.route.js';
 import logInRoute from './routes/log-in.route.js';
 import signUpRoute from './routes/sign-up.route.js';
@@ -20,6 +20,7 @@ import { errorData, ErrorJSON } from "./errors/custom-errors.errors.js";
 import { errorTypesMapping, type ErrorTypesMappingProps } from "./errors/mappings/error-types-mapping.errors.js";
 import { isDomainError } from './domain/user/user.errors.js';
 import { buildLinks } from './utils/hateoas.js';
+import cookieParser from 'cookie-parser';
 
 dotenv.config();
 
@@ -51,12 +52,12 @@ app.set('view engine', 'ejs');
       )
       app.use(express.static(path.join(process.cwd(), 'src', 'public')));
       app.use(express.json());
-      
+      app.use(cookieParser());
 
       const port = process.env.PORT || 3000;
 
       app.use((req, res, next) => {
-        res.locals.defaultLinks = buildLinks(req, [{ rel: 'get-help', path: '/v1', method: 'GET' }]);
+        res.locals.defaultErrLinks = buildLinks(req, [{ rel: 'get-help', path: '/v1', method: 'GET' }]);
         next();
       });
 
@@ -64,8 +65,8 @@ app.set('view engine', 'ejs');
       v1ApiRouter.use('/', getHelpRoute);
       v1ApiRouter.use('/sign-up', signUpRoute);
       v1ApiRouter.use('/log-in', logInRoute);
-      v1ApiRouter.use('/create', createURIRoute);
-      v1ApiRouter.use('/:shortUri', callURIRoute);
+      v1ApiRouter.use('/short-uris', shortURISRoute);
+      v1ApiRouter.use('/call/:shortUri', callURIRoute);
       v1ApiRouter.use('/log-out', logOutRoute);
       v1ApiRouter.use('/password', passwordRoute);
       //v1ApiRouter.use('/errors', errorHTMLRoute);
@@ -93,7 +94,7 @@ app.set('view engine', 'ejs');
           errorD = errorData(...errorTypesMapping[500] as ErrorTypesMappingProps, 'An unexpected error occurred on the server.', path )
         }
         
-        const errorJSON = new ErrorJSON(undefined, requestId, errorD, res.locals.links || res.locals.defaultLinks || {});
+        const errorJSON = new ErrorJSON(undefined, requestId, errorD, res.locals.errLinks || res.locals.defaultErrLinks || {});
 
         res.status(code).json(errorJSON.toJSON());
       }
