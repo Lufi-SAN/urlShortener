@@ -53,3 +53,13 @@ export class InvalidLoginCredentials extends Error implements DomainError {
     Object.setPrototypeOf(this, new.target.prototype);
   }
 }
+
+export class UnauthorizedUser extends Error implements DomainError {
+  public code: number;
+  constructor(message : string) {
+    super(message);
+    this.code = 401;
+    this.name = 'UnauthorizedUser';
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
+}

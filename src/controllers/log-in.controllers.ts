@@ -7,6 +7,7 @@ import { generateUserTokenService } from "../api/service/log-in-route/generate-u
 import { buildLinks } from "../utils/hateoas.js";
 import { buildMeta } from "../utils/metaBuilder.js";
 import { SuccessJSON } from "../utils/successJSON.js";
+import { isDomainError } from "../domain/user/user.errors.js";
 
 const logInController = {
     renderLogInPage(req : Request, res: Response, next: NextFunction) {
@@ -17,7 +18,7 @@ const logInController = {
         });
     },
     validateLogInData(req : Request, res: Response, next: NextFunction) {
-        userFormDataCheck(userLogInDataSchema, req, next);
+        userFormDataCheck(userLogInDataSchema, req, res, next);
     },
     async checkUserDetails(req : Request, res: Response, next: NextFunction) {
         const username = (req.body as UserLogInData).username;
@@ -27,6 +28,9 @@ const logInController = {
             req.userData = user
             next();
         } catch(err) {
+            if(isDomainError(err as Error)) {
+                res.locals.errLinks = buildLinks(req, [{ rel: 'log-in', path: '/v1/log-in', method: 'GET' }, { rel: 'get-help', path: '/v1', method: 'GET' }]);
+            }
             next(err)
         }
     },
@@ -49,7 +53,7 @@ const logInController = {
             });
             const links = buildLinks(req, [{ rel: 'create-uri', path: '/v1/create', method: 'GET' }, { rel: 'log-out', path: '/v1/log-out', method: 'POST' }, { rel: 'get-help', path: '/v1', method: 'GET' }]);
             const meta = buildMeta(req)
-            res.status(200).json(new SuccessJSON('success', 'User authenticated successfully', undefined, links, meta));
+            return res.status(200).json(new SuccessJSON('success', 'User authenticated successfully', undefined, links, meta));
         } catch(err) {
             next(err)
         }

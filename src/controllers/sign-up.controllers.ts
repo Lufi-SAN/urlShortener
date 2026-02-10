@@ -17,7 +17,7 @@ const signUpController = {
         });
     },
     validateSignUpData(req : Request, res: Response, next: NextFunction) {
-        userFormDataCheck(userSignUpDataSchema, req, next);
+        userFormDataCheck(userSignUpDataSchema, req, res, next);
     },
     async checkUserExists(req : Request, res: Response, next: NextFunction) {
         const username = (req.body as UserSignUpData).username;
@@ -29,7 +29,7 @@ const signUpController = {
             next()
         } catch(err) {//dynamism here too; check type of error first
             if (isDomainError(err as Error)) {
-                res.locals.links = buildLinks(req, [{ rel: 'create-uri', path: '/v1/create', method: 'GET' }, { rel: 'get-help', path: '/v1', method: 'GET' }]);
+                res.locals.errLinks = buildLinks(req, [{ rel: 'sign-up', path: '/v1/sign-up', method: 'GET' }, { rel: 'get-help', path: '/v1', method: 'GET' }]);
             } 
             next(err)
         }
@@ -49,6 +49,9 @@ const signUpController = {
                 res.status(201).json(new SuccessJSON('success', 'User account created successfully', data, links, meta));
             }
         } catch(err) {
+            if(isDomainError(err as Error)) {
+                res.locals.errLinks = buildLinks(req, [{ rel: 'sign-up', path: '/v1/sign-up', method: 'GET' }, { rel: 'get-help', path: '/v1', method: 'GET' }]);
+            }
             next(err);
         }
     }
