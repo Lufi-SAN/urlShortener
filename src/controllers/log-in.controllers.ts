@@ -4,6 +4,9 @@ import { userLogInDataSchema } from "./schemas/log-in.controllers.schema.js";
 import { type UserLogInData } from "./schemas/log-in.controllers.schema.js";
 import { checkUserDetailsService } from "../api/service/log-in-route/check-user-details.service.js";
 import { generateUserTokenService } from "../api/service/log-in-route/generate-user-token.service.js";
+import { buildLinks } from "../utils/hateoas.js";
+import { buildMeta } from "../utils/metaBuilder.js";
+import { SuccessJSON } from "../utils/successJSON.js";
 
 const logInController = {
     renderLogInPage(req : Request, res: Response, next: NextFunction) {
@@ -32,6 +35,21 @@ const logInController = {
         const tokenVersion = req.userData!.token_version;
         try {
             const tokens = await generateUserTokenService(userId, tokenVersion);
+            res.cookie('accessToken', tokens.accessJWT, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                maxAge: 15 * 60 * 1000 // 15 minutes
+            });
+            res.cookie('refreshToken', tokens.refreshJWT, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+            });
+            const links = buildLinks(req, [{ rel: 'create-uri', path: '/v1/create', method: 'GET' }, { rel: 'log-out', path: '/v1/log-out', method: 'POST' }, { rel: 'get-help', path: '/v1', method: 'GET' }]);
+            const meta = buildMeta(req)
+            res.status(200).json(new SuccessJSON('success', 'User authenticated successfully', undefined, links, meta));
         } catch(err) {
             next(err)
         }
