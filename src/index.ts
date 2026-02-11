@@ -21,6 +21,7 @@ import { errorTypesMapping, type ErrorTypesMappingProps } from "./errors/mapping
 import { isDomainError } from './domain/user/user.errors.js';
 import { buildLinks } from './utils/hateoas.js';
 import cookieParser from 'cookie-parser';
+import { authMiddleware } from './api/auth/auth.middleware.js';
 
 dotenv.config();
 
@@ -65,7 +66,7 @@ app.set('view engine', 'ejs');
       v1ApiRouter.use('/', getHelpRoute);
       v1ApiRouter.use('/sign-up', signUpRoute);
       v1ApiRouter.use('/log-in', logInRoute);
-      v1ApiRouter.use('/short-uris', shortURISRoute);
+      v1ApiRouter.use('/short-uris', authMiddleware, shortURISRoute);
       v1ApiRouter.use('/call/:shortUri', callURIRoute);
       v1ApiRouter.use('/log-out', logOutRoute);
       v1ApiRouter.use('/password', passwordRoute);

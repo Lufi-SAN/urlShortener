@@ -3,11 +3,10 @@ import dotenv from 'dotenv';
 dotenv.config();
 import { UnauthorizedUser } from '../../domain/user/user.errors.js';
 import { getTVFromDB } from './store/getTVFromDB.js';
-import { redisClient } from '../connections/redis.connection.js';
-import type { RedisArgument } from 'redis';
+import { getTokenVersionFromRedis, setTokenVersionInRedis } from '../redis/tokenVersion.js';
  
 
-export async function authService(accessToken: string, refreshToken: string): Promise<void> {
+export async function authService(accessToken: string, refreshToken: string) {
     try {
         const accessSecretKey = new TextEncoder().encode(process.env.ACCESS_JWT_SECRET_KEY);
         const refreshSecretKey = new TextEncoder().encode(process.env.REFRESH_JWT_SECRET_KEY);
@@ -24,15 +23,17 @@ export async function authService(accessToken: string, refreshToken: string): Pr
             throw new UnauthorizedUser('Invalid authentication tokens. Please log in again.');
         }
         //revocation check
-        const userId = parseInt(refreshPayload.sub as string);
-        let userCurrentTokenVersion = await redisClient.get(`user:${userId}:tokenVersion`)
+        const userId = refreshPayload.sub as string;
+        let userCurrentTokenVersion = await getTokenVersionFromRedis(userId)
         if (!userCurrentTokenVersion) {
             userCurrentTokenVersion = await getTVFromDB(userId)
-            await redisClient.set(`user:${userId}:tokenVersion`, userCurrentTokenVersion as RedisArgument, {expiration : {type: 'EX', value: 3600}})
+            await setTokenVersionInRedis(userId, userCurrentTokenVersion as number)
         }
-        if (refreshPayload.tokenVersion !== userCurrentTokenVersion || redisClient.dtiCheck) {
+        //check for dti too LATER
+        if (refreshPayload.tokenVersion !== userCurrentTokenVersion) {
             throw new UnauthorizedUser('Invalid authentication tokens. Please log in again.');
         }
+        return { id : accessPayload.sub as string }
     } catch (err) {
         if (err instanceof errors.JOSEError) {
             throw new UnauthorizedUser('Invalid authentication tokens. Please log in again.');

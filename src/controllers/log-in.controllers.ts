@@ -24,8 +24,7 @@ const logInController = {
         const username = (req.body as UserLogInData).username;
         const password = (req.body as UserLogInData).password;
         try {
-            const user = await checkUserDetailsService(username, password);
-            req.userData = user
+            req.userData = await checkUserDetailsService(username, password);
             next();
         } catch(err) {
             if(isDomainError(err as Error)) {

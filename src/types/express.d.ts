@@ -6,6 +6,9 @@ declare module "express-serve-static-core" {
       id: number;
       token_version: number;
     },
+    user?: { 
+      id:string
+    },
     rateLimit?: {
       limit: number;
       used: number;

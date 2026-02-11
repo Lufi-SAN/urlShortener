@@ -1,6 +1,6 @@
 import { pg } from "../../connections/postgres.connection.js"
 
-export async function getTVFromDB(userId: number) {
+export async function getTVFromDB(userId: string): Promise<number> {
     const query = 'SELECT token_version FROM users WHERE id = $1';
     const values = [userId]
 
