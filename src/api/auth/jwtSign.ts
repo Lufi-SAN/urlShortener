@@ -11,7 +11,7 @@ export async function jwtSign(id: number, tokenVersion: number) {
     const issuer = "url-shortener-api";
     const audience = "url-shortener-users";
 
-    const accessJWT = await new SignJWT({})
+    const accessJWT = await new SignJWT({type: "access"})
     .setProtectedHeader({ alg })
     .setExpirationTime("15m")
     .setIssuedAt()
@@ -20,7 +20,7 @@ export async function jwtSign(id: number, tokenVersion: number) {
     .setAudience(audience)
     .sign(accessSecretKey);
 
-    const refreshJWT = await new SignJWT({tokenVersion : tokenVersion.toString()})
+    const refreshJWT = await new SignJWT({type: "refresh", tokenVersion : tokenVersion.toString()})
     .setProtectedHeader({ alg })
     .setExpirationTime("7d")
     .setIssuedAt()
