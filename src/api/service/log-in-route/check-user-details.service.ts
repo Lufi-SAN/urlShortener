@@ -1,7 +1,6 @@
-import { InvalidLoginCredentials } from "../../../domain/user/user.errors.js";
+import { InvalidLoginCredentials, isDomainError } from "../../../domain/user/user.errors.js";
 import { checkUserDetailsStore } from "../../store/check-user-details-service/check-user-details.store.js";
-import { mapPostgresError } from "../../../errors/mappings/pg-error-mapping.errors.js";
-import { DatabaseError } from "pg";
+import bcrypt from "bcrypt"
 
 export async function checkUserDetailsService(username: string, password: string) {
     try {
@@ -9,11 +8,13 @@ export async function checkUserDetailsService(username: string, password: string
         if (!user) {
             throw new InvalidLoginCredentials('Invalid username or password');
         }
-        return user;
-    } catch(err) {
-        if (err instanceof DatabaseError && err.code && err.constraint) {
-            mapPostgresError(err);
+        const {id, password_hash, token_version} = user
+        const isPasswordValid = await bcrypt.compare(password, password_hash);
+        if (!isPasswordValid) {
+            throw new InvalidLoginCredentials('Invalid username or password');// Invalid password
         }
-        throw err;//bcrypt & domain errors
+        return { id, token_version };
+    } catch(err) {
+        throw err;
     }
 }
