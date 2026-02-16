@@ -5,6 +5,6 @@ const logInRoute = Router();
 
 logInRoute.get('/', logInController.renderLogInPage)
 
-logInRoute.post('/', logInController.validateLogInData, logInController.checkUserDetails, logInController.authenticateUser);
+logInRoute.post('/', logInController.checkUserDetails, logInController.authenticateUser);
 
 export default logInRoute;

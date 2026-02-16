@@ -8,26 +8,27 @@ import { buildLinks } from "../utils/hateoas.js";
 import { buildMeta } from "../utils/metaBuilder.js";
 import { SuccessJSON } from "../utils/successJSON.js";
 import { isDomainError } from "../domain/user/user.errors.js";
+import { loginAttemptService } from "../api/service/log-in-route/log-in-attempt.service.js";
 
 const logInController = {
     renderLogInPage(req : Request, res: Response, next: NextFunction) {
         res.status(200).render('index', { 
             title: 'Log-In',
             page: 'pages/log-in',
-            script: 'log-in.js'
+            script: '/ejs-scripts/log-in.js'
         });
-    },
-    validateLogInData(req : Request, res: Response, next: NextFunction) {
-        userFormDataCheck(userLogInDataSchema, req, res, next);
     },
     async checkUserDetails(req : Request, res: Response, next: NextFunction) {
         const username = (req.body as UserLogInData).username;
         const password = (req.body as UserLogInData).password;
         try {
+            await loginAttemptService.increment(req.ip as string, username)
             req.userData = await checkUserDetailsService(username, password);
+            await loginAttemptService.success(req.ip as string, username)
             next();
         } catch(err) {
             if(isDomainError(err as Error)) {
+                await loginAttemptService.failure(req.ip as string, username)
                 res.locals.errLinks = buildLinks(req, [{ rel: 'log-in', path: '/v1/log-in', method: 'GET' }, { rel: 'get-help', path: '/v1', method: 'GET' }]);
             }
             next(err)
@@ -56,6 +57,22 @@ const logInController = {
         } catch(err) {
             next(err)
         }
+    }
+}
+
+export function validateLogInData(req : Request, res: Response, next: NextFunction) {
+    userFormDataCheck(userLogInDataSchema, req, res, next);
+}
+
+export async function logInRateLimiter(req : Request, res: Response, next: NextFunction) {
+    try {
+        await loginAttemptService.rateLimit(req.ip as string, req.body.username)
+        next()
+    } catch(err) {
+        if(isDomainError(err as Error)) {
+            res.locals.links = buildLinks()
+        }
+        next(err)
     }
 }
 

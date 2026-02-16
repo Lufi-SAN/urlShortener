@@ -63,3 +63,13 @@ export class UnauthorizedUser extends Error implements DomainError {
     Object.setPrototypeOf(this, new.target.prototype);
   }
 }
+
+export class TooManyAttempts extends Error implements DomainError {
+  public code: number;
+  constructor(message : string) {
+    super(message)
+    this.code = 429;
+    this.name = 'TooManyAttempts'
+    Object.setPrototypeOf(this, new.target.prototype)
+  }
+}
