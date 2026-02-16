@@ -70,7 +70,7 @@ export async function logInRateLimiter(req : Request, res: Response, next: NextF
         next()
     } catch(err) {
         if(isDomainError(err as Error)) {
-            res.locals.links = buildLinks()
+            res.locals.links = buildLinks(req, [{ rel: 'get-help', path: '/v1', method: 'GET' }])
         }
         next(err)
     }
