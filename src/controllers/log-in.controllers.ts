@@ -57,23 +57,20 @@ const logInController = {
         } catch(err) {
             next(err)
         }
-    }
-}
-
-export function validateLogInData(req : Request, res: Response, next: NextFunction) {
-    userFormDataCheck(userLogInDataSchema, req, res, next);
-}
-
-export async function logInRateLimiter(req : Request, res: Response, next: NextFunction) {
-    try {
-        await loginAttemptService.rateLimit(req.ip as string, req.body.username)
-        next()
-    } catch(err) {
-        if(isDomainError(err as Error)) {
-            res.locals.links = buildLinks(req, [{ rel: 'get-help', path: '/v1', method: 'GET' }])
+    },
+    validateLogInData(req : Request, res: Response, next: NextFunction) {
+        userFormDataCheck(userLogInDataSchema, req, res, next);
+    },
+    async logInRateLimiter(req : Request, res: Response, next: NextFunction) {
+        try {
+            await loginAttemptService.rateLimit(req.ip as string, req.body.username)
+            next()
+        } catch(err) {
+            if(isDomainError(err as Error)) {
+                res.locals.links = buildLinks(req, [{ rel: 'get-help', path: '/v1', method: 'GET' }])
+            }
+            next(err)
         }
-        next(err)
     }
 }
-
 export default logInController;

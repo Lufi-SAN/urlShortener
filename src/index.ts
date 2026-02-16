@@ -22,7 +22,7 @@ import { isDomainError } from './domain/user/user.errors.js';
 import { buildLinks } from './utils/hateoas.js';
 import cookieParser from 'cookie-parser';
 import { authMiddleware } from './api/auth/auth.middleware.js';
-import { logInRateLimiter, validateLogInData } from './controllers/log-in.controllers.js'
+
 
 dotenv.config();
 
@@ -66,7 +66,7 @@ app.set('view engine', 'ejs');
       //API ROUTES
       v1ApiRouter.use('/', getHelpRoute);
       v1ApiRouter.use('/sign-up', signUpRoute);
-      v1ApiRouter.use('/log-in', validateLogInData, logInRateLimiter, logInRoute);
+      v1ApiRouter.use('/log-in', logInRoute);
       v1ApiRouter.use('/short-uris', authMiddleware, shortURISRoute);
       v1ApiRouter.use('/call/:shortUri', callURIRoute);
       v1ApiRouter.use('/log-out', logOutRoute);
