@@ -1,0 +1,1 @@
+ALTER TABLE urls ADD COLUMN is_private BOOLEAN NOT NULL DEFAULT false;
