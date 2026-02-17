@@ -8,7 +8,7 @@ import RedisStore from 'rate-limit-redis';
 import { redisClient, redisConnectWithRetry } from './api/connections/redis.connection.js';
 import pino from 'pino';
 import getHelpRoute from './routes/get-help.route.js';
-import shortURISRoute from './routes/short-uris.route.js';
+import shortURIsRoute from './routes/short-URIs.route.js';
 import callURIRoute from './routes/call-uri.route.js';
 import logInRoute from './routes/log-in.route.js';
 import signUpRoute from './routes/sign-up.route.js';
@@ -22,7 +22,6 @@ import { isDomainError } from './domain/user/user.errors.js';
 import { buildLinks } from './utils/hateoas.js';
 import cookieParser from 'cookie-parser';
 import { authMiddleware } from './api/auth/auth.middleware.js';
-
 
 dotenv.config();
 
@@ -67,8 +66,8 @@ app.set('view engine', 'ejs');
       v1ApiRouter.use('/', getHelpRoute);
       v1ApiRouter.use('/sign-up', signUpRoute);
       v1ApiRouter.use('/log-in', logInRoute);
-      v1ApiRouter.use('/short-uris', authMiddleware, shortURISRoute);
-      v1ApiRouter.use('/call/:shortUri', callURIRoute);
+      v1ApiRouter.use('/short-uris', authMiddleware, shortURIsRoute);
+      v1ApiRouter.use('/call/:short-uri', callURIRoute);
       v1ApiRouter.use('/log-out', logOutRoute);
       v1ApiRouter.use('/password', passwordRoute);
       //v1ApiRouter.use('/errors', errorHTMLRoute);
