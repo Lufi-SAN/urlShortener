@@ -1,30 +1,36 @@
 <h1>Welcome <%= username %></h1>
 
 <h2>Your URIs</h2>
-<div><!-- divContainer -->
-<% uriArray.forEach(function({short_code, original_url, is_expired, is_deleted}) { %>
-    <% if(!deleted_at) { %>
-    <div><!-- div(n) -->
+<div class="div_container"><!-- divContainer -->
+<% uriArray.forEach(function({short_code, original_url, is_expired}) { %>
+    
+    <div class="uri_info_div"><!-- div(n) -->
         <div><%- short_code %></div>
         <div><%- original_url %></div>
-        <button>DELETE</button>
-        <% if(expires_at) { %>
-            <button>MODIFY URI</button>
+        <button class="button uri_delete">DELETE</button>
+        <% if(!is_expired) { %>
+            <button class="button unexpired_uri_modification">MODIFY URI</button>
         <% } %>
-        <% if(expires_at) { %>
-            <button>REGENERATE URI</button>
+        <% if(is_expired) { %>
+            <button class="button expired_uri_regeneration">REGENERATE URI</button>
         <% } %>
     </div>
-    <% } %>
+    
 <% }) %>
 <div>
 
 <h2>Create new URI?</h2>
 <form id="shortURISForm">
-    <label for="longuri">Enter the URI you want to shorten here:</label><br>
-    <textarea name="original_url" id="longuri"></textarea>
-    <label for="privateuri">Private URL?</label>
-    <input type="checkbox" name="privateURI" id="privateuri">
-    <label for="">Expiry</label>
+    <label for="original_uri">Enter the URI you want to shorten here:</label><br>
+    <textarea name="original_url" id="original_uri"></textarea>
+    <label for="is_private">Check box to make your URI private:</label>
+    <input type="checkbox" name="is_private" id="is_private">
+    <label for="expires_at">Expiry</label>
+    <input type="datetime-local" name="expires_at" id="expires_at" min="<%= (() => {
+        const now = new Date()
+        now.setHours(now.getHours() + 1)
+        const local = new Date(now.getTime()  - (now.getTimezoneOffset() * 60000))
+        return local.toISOString().slice(0, 16)
+    })() %>">
     <input type="submit" value="Create URI">
 </form>
