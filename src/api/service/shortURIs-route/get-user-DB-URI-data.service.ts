@@ -7,7 +7,7 @@ export async function getUserDBURIDataService(id: string) {
             return null
         }
         const username = userDBURIData[0].username
-        const mappedUserDBURIData = userDBURIData.map((item) => {
+        const mappedUserDBURIData = userDBURIData.filter(({is_deleted}) => !is_deleted).map((item) => {
             const {username, ...restObj} = item
             return restObj
         })
