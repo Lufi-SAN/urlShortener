@@ -19,6 +19,9 @@ const shortURIsController = {
             next(err)
         }
     },
+    async validateShortURIData(req: Request, res: Response, next: NextFunction) {
+        
+    },
     async createNewShortURI(req: Request, res: Response, next: NextFunction) {
 
     },

@@ -51,7 +51,7 @@ const logInController = {
                 sameSite: 'lax',
                 maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
             });
-            const links = buildLinks(req, [{ rel: 'create-uri', path: '/v1/create', method: 'GET' }, { rel: 'log-out', path: '/v1/log-out', method: 'POST' }, { rel: 'get-help', path: '/v1', method: 'GET' }]);
+            const links = buildLinks(req, [{ rel: 'create-uri', path: '/v1/short-uris', method: 'GET' }, { rel: 'log-out', path: '/v1/log-out', method: 'POST' }, { rel: 'get-help', path: '/v1', method: 'GET' }]);
             const meta = buildMeta(req)
             return res.status(200).json(new SuccessJSON('success', 'User authenticated successfully', undefined, links, meta));
         } catch(err) {
