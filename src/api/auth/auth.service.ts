@@ -30,7 +30,7 @@ export async function authService(accessToken: string, refreshToken: string) {
             await setTokenVersionInRedis(userId, userCurrentTokenVersion as number)
         }
         //check for dti too LATER
-        if (refreshPayload.tokenVersion !== userCurrentTokenVersion) {
+        if (Number(refreshPayload.tokenVersion) !== Number(userCurrentTokenVersion)) {
             throw new UnauthorizedUser('Invalid authentication tokens. Please log in again.');
         }
         return { id : accessPayload.sub as string }
