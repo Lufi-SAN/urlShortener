@@ -17,7 +17,9 @@ const signUpController = {
         });
     },
     validateSignUpData(req : Request, res: Response, next: NextFunction) {
-        userFormDataCheck(userSignUpDataSchema, req, res, next);
+        const linkArrayOne = [{ rel: 'sign-up', path: '/v1/sign-up', method: 'GET' }, { rel: 'get-help', path: '/v1', method: 'GET' }]
+        const linkArrayTwo = [{ rel: 'sign-up', path: '/v1/sign-up', method: 'GET' }, { rel: 'get-help', path: '/v1', method: 'GET' }]
+        userFormDataCheck(userSignUpDataSchema, req, res, next, linkArrayOne, linkArrayTwo);
     },
     async checkUserExists(req : Request, res: Response, next: NextFunction) {
         const username = (req.body as UserSignUpData).username;
@@ -35,8 +37,8 @@ const signUpController = {
         }
     },
     async createUserAccount(req : Request, res: Response, next: NextFunction) {
-        const username = (req.body as UserSignUpData).username;
-        const password = (req.body as UserSignUpData).password;
+        const username = req.validated?.username;
+        const password = req.validated?.password;
         try {
             const user = await createNewUserService(username, password);
             if (user) { 

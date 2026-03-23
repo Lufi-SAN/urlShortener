@@ -19,8 +19,8 @@ const logInController = {
         });
     },
     async checkUserDetails(req : Request, res: Response, next: NextFunction) {
-        const username = (req.body as UserLogInData).username;
-        const password = (req.body as UserLogInData).password;
+        const username = req.validated?.username;
+        const password = req.validated?.password;
         try {
             await loginAttemptService.increment(req.ip as string, username)
             req.userData = await checkUserDetailsService(username, password);
@@ -51,7 +51,7 @@ const logInController = {
                 sameSite: 'lax',
                 maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
             });
-            const links = buildLinks(req, [{ rel: 'create-uri', path: '/v1/short-uris', method: 'GET' }, { rel: 'log-out', path: '/v1/log-out', method: 'POST' }, { rel: 'get-help', path: '/v1', method: 'GET' }]);
+            const links = buildLinks(req, [{ rel: 'view-short-uris', path: '/v1/short-uris', method: 'GET' }, { rel: 'log-out', path: '/v1/log-out', method: 'POST' }, { rel: 'get-help', path: '/v1', method: 'GET' }]);
             const meta = buildMeta(req)
             return res.status(200).json(new SuccessJSON('success', 'User authenticated successfully', undefined, links, meta));
         } catch(err) {
@@ -59,11 +59,13 @@ const logInController = {
         }
     },
     validateLogInData(req : Request, res: Response, next: NextFunction) {
-        userFormDataCheck(userLogInDataSchema, req, res, next);
+        const linkArrayOne = [{ rel: 'log-in', path: '/v1/log-in', method: 'GET' }, { rel: 'get-help', path: '/v1', method: 'GET' }]
+        const linkArrayTwo = [{ rel: 'log-in', path: '/v1/sign-up', method: 'GET' }, { rel: 'get-help', path: '/v1', method: 'GET' }]
+        userFormDataCheck(userLogInDataSchema, req, res, next, linkArrayOne, linkArrayTwo);
     },
     async logInRateLimiter(req : Request, res: Response, next: NextFunction) {
         try {
-            await loginAttemptService.rateLimit(req.ip as string, req.body.username)
+            await loginAttemptService.rateLimit(req.ip as string, req.validated?.username)
             next()
         } catch(err) {
             if(isDomainError(err as Error)) {
