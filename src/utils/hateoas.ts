@@ -1,8 +1,8 @@
 import { type Request } from "express";
 
 export function buildLinks(req: Request, linksConfig: { rel: string; path: string; method: string }[]) {
-    const selfUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const selfUrl = `${process.env.APP_DOMAIN}${req.originalUrl}`;
+    const baseUrl = `${process.env.APP_DOMAIN}`;
     return linksConfig.reduce((acc, link) => {
         acc[link.rel] = {
             href: `${baseUrl}${link.path}`,
