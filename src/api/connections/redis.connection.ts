@@ -1,11 +1,10 @@
-import { createClient } from "redis";
-import dotenv from "dotenv";
-
-dotenv.config();
+import { createClient, type RedisClientType as ClientTypeFromRedis } from "redis";
 
 const redisClient = createClient({
   url: process.env.REDIS_URL || "redis://localhost:6379",
 });
+
+export type RedisClientType = typeof redisClient
 
 // Handle Redis client runtime errors. Failures after successful connection
 redisClient.on("error", (err) => {
@@ -13,13 +12,15 @@ redisClient.on("error", (err) => {
 });
 
 // Initial connection attempt & retries on startup/connection failure
-const redisConnectWithRetry = async (retries: number = 5, delay: number = 2000): Promise<void> => {
+const redisConnectWithRetry = async (retries: number = 5, delay: number = 2000): Promise<RedisClientType> => {
   for (let i = 0; i < retries; i++) {
     try {
+      if(!redisClient.isOpen) {
         console.log('[redis.connection.ts] Attempting to connect to Redis...');
         await redisClient.connect();
         console.log('[redis.connection.ts] Connected to Redis successfully.');
-        return;
+      }
+      break;
     }
     catch (err) {
         console.error(`[redis.connection.ts] Redis connection attempt ${i + 1} failed:`, err);
@@ -32,6 +33,7 @@ const redisConnectWithRetry = async (retries: number = 5, delay: number = 2000):
         }
     }
   }
+  return redisClient;
 }
 
 export { redisClient, redisConnectWithRetry }
