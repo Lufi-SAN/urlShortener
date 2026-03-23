@@ -9,6 +9,7 @@ declare module "express-serve-static-core" {
     user?: { 
       id:string
     },
+    validated?: Record<string, any>,
     rateLimit?: {
       limit: number;
       used: number;
