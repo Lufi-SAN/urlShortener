@@ -14,7 +14,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
             if (response.ok) {
                 alert('Log in successful!');
                 const data = await response.json()
-                window.location.href = data.links["create-uri"].href
+                window.location.href = data.links["view-short-uris"].href
             } else {
                 alert('Log in failed.');
             }
