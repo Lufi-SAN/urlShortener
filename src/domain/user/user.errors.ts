@@ -24,12 +24,12 @@ export class BadRequestError extends Error implements DomainError {
     }
 }
 
-export class InvalidSignUpCredentials extends Error implements DomainError {
+export class InvalidUserFormCredentials extends Error implements DomainError {
     public code : number;
     constructor(message : string) {
         super(message),
         this.code = 422,
-        this.name = 'InvalidSignUpCredentials';
+        this.name = 'InvalidUserFormCredentials';
         Object.setPrototypeOf(this, new.target.prototype);
     }
 } 
