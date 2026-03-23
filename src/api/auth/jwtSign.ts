@@ -1,6 +1,4 @@
 import { SignJWT } from "jose";
-import dotenv from "dotenv";
-dotenv.config();
 
 export async function jwtSign(id: number, tokenVersion: number) {
     const accessSecretKey = new TextEncoder().encode(process.env.ACCESS_JWT_SECRET_KEY);

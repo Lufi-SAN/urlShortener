@@ -1,6 +1,4 @@
 import { jwtVerify, errors } from 'jose'
-import dotenv from 'dotenv';
-dotenv.config();
 import { UnauthorizedUser } from '../../domain/user/user.errors.js';
 import { getTVFromDB } from './store/getTVFromDB.js';
 import { getTokenVersionFromRedis, setTokenVersionInRedis } from '../redis/tokenVersion.js';
